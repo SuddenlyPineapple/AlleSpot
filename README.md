@@ -1,4 +1,7 @@
-# allespot
+# AlleSpot
+
+## Info
+It is important to run application on `localhost` on port `8080` otherwise request to Spotify API don't be handled.
 
 ## Project setup
 ```
