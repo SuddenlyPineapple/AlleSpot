@@ -1,18 +1,63 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+  <div id="home">
+    <welcome v-if="!token" :handleAuth="authIn"/>
+    <spotify-search v-if="token" :data="data"/>
+    <p v-if="error" class="error">{{ error }}</p>
   </div>
 </template>
 
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
+<script lang="js">
+import {Vue, Component, Prop} from 'vue-property-decorator';
+import SpotifySearch from '../components/SpotifySearch.vue';
+import Welcome from '../components/Welcome.vue';
+import URL from '../config/auth.js';
 
-@Component({
+export default Vue.extend({
+  name: 'Home',
   components: {
-    HelloWorld,
+    SpotifySearch,
+    Welcome,
   },
-})
-export default class Home extends Vue {}
+  data() {
+    return {
+      token: null,
+      error: null,
+      data: null,
+    };
+  },
+  created() { // TODO: TokenRefreshing
+    const token = localStorage.getItem('ACCESS_TOKEN');
+    if (token) {
+      this.token = token;
+      // this.getInfo({ // TODO: Replace getInfo
+      //   headers: {
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      // });
+      return;
+    }
+    const error = /[#&]error=/.exec(window.location.hash);
+    if (error) {
+      this.error = 'Error signing in. Please try again later.';
+    }
+    const match = /[#&]access_token=([^&]*)/.exec(window.location.hash);
+    if (match) {
+      const accessToken = decodeURIComponent(match[1].replace(/\+g/, ' '));
+      this.token = accessToken;
+      const options = {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      };
+      // this.getInfo(options); // TODO: Replace getInfo
+      localStorage.setItem('ACCESS_TOKEN', accessToken);
+      window.location.hash = '';
+    }
+  },
+  methods: {
+    authIn() {
+      window.location = URL;
+    },
+  },
+});
 </script>
