@@ -12,11 +12,19 @@ jobs:
   
     steps:
     - name: Build and Deploy
-      uses: actions/checkout@master
+      uses: actions/checkout@v1
       with:
         node-version: ${{ matrix.node-version }}
       env:
         ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         BRANCH: gh-pages
         FOLDER: dist
+        BUILD_SCRIPT: npm install && npm run-script build
+        
+    - name: Build and Deploy
+      uses: JamesIves/github-pages-deploy-action@master
+      env:
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        BRANCH: gh-pages
+        FOLDER: build
         BUILD_SCRIPT: npm install && npm run-script build
